@@ -17,13 +17,13 @@ let config = {
     parent: 'phaser-game',
     type: Phaser.CANVAS,
     render: {
-        pixelArt: true  // prevent pixel art from getting blurred when scaled
+        pixelArt: false  // prevent pixel art from getting blurred when scaled
     },
     width: 800,
     height: 600,
     scene: [shmup],
     fps: { forceSetTimeOut: true, target: 60 },
-    backgroundColor: '#90f0dc'
+    backgroundColor: '#0000'
 }
 
 const game = new Phaser.Game(config);
