@@ -51,7 +51,7 @@ class shmup extends Phaser.Scene {
 
         // Create enemySprite as a follower type of sprite
         // Call startFollow() on enemySprite to have it follow the curve
-        my.sprite.enemySprite = this.add.follower(this.curve, 10, 10, "enemySprite");
+        my.sprite.enemySprite = new Enemy(this, this.curve, 10, 10, "enemySprite", null, 5);
 
         if (this.curve.points[0]) {
             my.sprite.enemySprite.x = this.curve.points[0].x;
