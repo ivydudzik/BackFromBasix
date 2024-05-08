@@ -49,26 +49,6 @@ class shmup extends Phaser.Scene {
         ];
         this.curve = new Phaser.Curves.Spline(this.points);
 
-        // Create enemySprite as a follower type of sprite
-        // Call startFollow() on enemySprite to have it follow the curve
-        my.sprite.enemySprite = new Enemy(this, this.curve, 10, 10, "enemySprite", null, 5);
-
-        if (this.curve.points[0]) {
-            my.sprite.enemySprite.x = this.curve.points[0].x;
-            my.sprite.enemySprite.y = this.curve.points[0].y;
-        }
-        //   - call startFollow on enemySprite with the following configuration
-        my.sprite.enemySprite.startFollow({
-            from: 0,
-            to: 1,
-            delay: 0,
-            duration: 20000 / this.enemySpeed,
-            ease: 'Sine.easeInOut',
-            repeat: -1,
-            yoyo: true,
-            rotateToPath: true,
-            rotationOffset: -90
-        })
 
         // Create white puff animation
         this.anims.create({
@@ -84,7 +64,6 @@ class shmup extends Phaser.Scene {
             hideOnComplete: true
         });
 
-
         // Create key objects
         this.left = this.input.keyboard.addKey("A");
         this.right = this.input.keyboard.addKey("D");
@@ -96,6 +75,27 @@ class shmup extends Phaser.Scene {
             this.left, this.right, 5);
         my.sprite.playerSprite.rotation = Math.PI / 4;
         // my.sprite.playerSprite.setScale(0.25);
+
+        // Create Normal Enemy Group
+        my.sprite.enemyGroup = this.add.group({
+            active: true,
+            defaultKey: "enemySprite",
+            maxSize: 25,
+            runChildUpdate: true
+        }
+        )
+
+        for (let i = 10; i > 0; i--) {
+            my.sprite.enemyGroup.add(
+                new Enemy(this, this.curve, 10, 10, my.sprite.enemyGroup.defaultKey, null, 5, i)
+            )
+        }
+
+        // Create enemySprite as a follower type of sprite
+        // Call startFollow() on enemySprite to have it follow the curve
+        // my.sprite.enemySprite = new Enemy(this, this.curve, 10, 10, "enemySprite", null, 5);
+
+
 
         // In this approach, we create a single "group" game object which then holds up
         // to 10 bullet sprites
@@ -146,30 +146,12 @@ class shmup extends Phaser.Scene {
 
         // Check for collision with the enemySprite
         for (let bullet of my.sprite.bulletGroup.getChildren()) {
-            if (this.collides(my.sprite.enemySprite, bullet)) {
-                // start animation
-                this.puff = this.add.sprite(my.sprite.enemySprite.x, my.sprite.enemySprite.y, "whitePuff03").setScale(0.25).play("puff");
-                // clear out bullet -- put y offscreen, will get reaped next update
-                bullet.y = -100;
-                my.sprite.enemySprite.stopFollow()
-                my.sprite.enemySprite.visible = false;
-                this.puff.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
-                    this.my.sprite.enemySprite.visible = true;
-                    my.sprite.enemySprite.x = this.curve.points[0].x;
-                    my.sprite.enemySprite.y = this.curve.points[0].y;
-                    my.sprite.enemySprite.startFollow({
-                        from: 0,
-                        to: 1,
-                        delay: 0,
-                        duration: 2000,
-                        ease: 'Sine.easeInOut',
-                        repeat: -1,
-                        yoyo: true,
-                        rotateToPath: true,
-                        rotationOffset: -90
-                    })
-                }, this);
-
+            for (let enemy of my.sprite.enemyGroup.getChildren()) {
+                if (this.collides(enemy, bullet)) {
+                    enemy.explode();
+                    // clear out bullet -- put y offscreen, will get reaped next update
+                    bullet.y = -100;
+                }
             }
         }
 
