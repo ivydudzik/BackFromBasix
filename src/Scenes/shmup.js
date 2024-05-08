@@ -11,10 +11,13 @@ class shmup extends Phaser.Scene {
         // Set movement speeds (in pixels/tick)
         this.playerSpeed = 10;
         this.bulletSpeed = 10;
-        this.enemySpeed = 10;
+        this.enemySpeed = 2.5;
 
         this.bulletCooldown = 5;        // Number of update() calls to wait before making a new bullet
         this.bulletCooldownCounter = 0;
+
+        this.hitCooldown = 120;        // Number of update() calls to wait before making a new bullet
+        this.hitCooldownCounter = 0;
     }
 
     // Use preload to load art and sound assets before the scene starts running.
@@ -24,6 +27,8 @@ class shmup extends Phaser.Scene {
         this.load.image('playerSprite', 'pointer_scifi_b.png');
         this.load.image('bulletSprite', 'line_vertical.png');
         this.load.image("enemySprite", "navigation_s.png");
+        this.load.image("enemySpriteElite", "pointer_b.png");
+        this.load.image("shield", "busy_circle.png");
 
         this.load.image("whitePuff00", "whitePuff00.png");
         this.load.image("whitePuff01", "whitePuff01.png");
@@ -98,11 +103,6 @@ class shmup extends Phaser.Scene {
             this.eliteEnemyCurves.push(newCurve);
         }
 
-        console.log(this.eliteEnemyCurves);
-
-
-
-
         // Create white puff animation
         this.anims.create({
             key: "puff",
@@ -123,9 +123,12 @@ class shmup extends Phaser.Scene {
         this.nextScene = this.input.keyboard.addKey("S");
         this.shoot = this.input.keyboard.addKey("W");
 
+        my.sprite.shield = this.add.sprite(game.config.width / 2, game.config.height - 40, "shield");
+        // my.sprite.shield.setScale(0.25);
+
         // Create the main body sprite
         my.sprite.playerSprite = new Player(this, game.config.width / 2, game.config.height - 40, "playerSprite", null,
-            this.left, this.right, 5);
+            this.left, this.right, 5, my.sprite.shield);
         my.sprite.playerSprite.rotation = Math.PI / 4;
         // my.sprite.playerSprite.setScale(0.25);
 
@@ -140,14 +143,14 @@ class shmup extends Phaser.Scene {
 
         for (let i = this.normalEnemyCount; i > 0; i--) {
             my.sprite.normalEnemyGroup.add(
-                new Enemy(this, this.normalEnemyCurves[i - 1], 10, 10, my.sprite.normalEnemyGroup.defaultKey, null, 5, 10)
+                new Enemy(this, this.normalEnemyCurves[i - 1], 10, 10, my.sprite.normalEnemyGroup.defaultKey, null, this.enemySpeed)
             )
         }
 
         // Create Elite Enemy Group
         my.sprite.eliteEnemyGroup = this.add.group({
             active: true,
-            defaultKey: "enemySprite",
+            defaultKey: "enemySpriteElite",
             maxSize: this.eliteEnemyCount,
             runChildUpdate: true
         }
@@ -155,9 +158,10 @@ class shmup extends Phaser.Scene {
 
         for (let i = this.eliteEnemyCount; i > 0; i--) {
             my.sprite.eliteEnemyGroup.add(
-                new Enemy(this, this.eliteEnemyCurves[i - 1], 10, 10, my.sprite.eliteEnemyGroup.defaultKey, null, 5, 10)
+                new Enemy(this, this.eliteEnemyCurves[i - 1], 10, 10, my.sprite.eliteEnemyGroup.defaultKey, null, this.enemySpeed)
             )
         }
+        my.sprite.eliteEnemyGroup.propertyValueSet("scale", 0.75);
 
         // Create enemySprite as a follower type of sprite
         // Call startFollow() on enemySprite to have it follow the curve
@@ -188,14 +192,23 @@ class shmup extends Phaser.Scene {
         });
         my.sprite.bulletGroup.propertyValueSet("speed", this.bulletSpeed);
 
+
+
         // Add Descriptive Text
         document.getElementById('description').innerHTML = '<h3>A: left // D: right // shoot: fire/emit // S: Next Scene</h3>'
 
     }
 
+    lose() {
+        console.log('you lose!')
+    }
+
     update() {
         let my = this.my;
         this.bulletCooldownCounter--;
+        this.hitCooldownCounter--;
+
+
 
         // Check for bullet being fired
         if (this.shoot.isDown) {
@@ -212,7 +225,7 @@ class shmup extends Phaser.Scene {
             }
         }
 
-        // Check for collision with the enemySprite
+        // Check for bullet collision with the normal enemies
         for (let bullet of my.sprite.bulletGroup.getChildren()) {
             for (let enemy of my.sprite.normalEnemyGroup.getChildren()) {
                 if (this.collides(enemy, bullet)) {
@@ -222,6 +235,39 @@ class shmup extends Phaser.Scene {
                 }
             }
         }
+
+        // Check for bullet collision with the elite enemies
+        for (let bullet of my.sprite.bulletGroup.getChildren()) {
+            for (let enemy of my.sprite.eliteEnemyGroup.getChildren()) {
+                if (this.collides(enemy, bullet)) {
+                    enemy.explode();
+                    // clear out bullet -- put y offscreen, will get reaped next update
+                    bullet.y = -100;
+                }
+            }
+        }
+
+        if (this.hitCooldownCounter < 0) {
+            // Check for player collision with the normal enemies
+            for (let enemy of my.sprite.normalEnemyGroup.getChildren()) {
+                if (this.collides(enemy, my.sprite.playerSprite)) {
+                    enemy.explode();
+                    my.sprite.playerSprite.hit(); // kill player / end game if no shield
+                    this.hitCooldownCounter = this.hitCooldown;
+                }
+            }
+
+            // Check for player collision with the elite enemies
+            for (let enemy of my.sprite.eliteEnemyGroup.getChildren()) {
+                if (this.collides(enemy, my.sprite.playerSprite)) {
+                    enemy.explode();
+                    my.sprite.playerSprite.hit(); // kill player / end game if no shield
+                    this.hitCooldownCounter = this.hitCooldown;
+                }
+            }
+        }
+
+
 
         // update the player avatar by by calling the player's update()
         my.sprite.playerSprite.update();
