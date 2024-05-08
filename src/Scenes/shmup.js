@@ -34,20 +34,73 @@ class shmup extends Phaser.Scene {
     create() {
         let my = this.my;
 
+        this.normalEnemyCount = 6;
+        this.eliteEnemyCount = 2;
+
         // Create a curve, for use with the path
         // Initial set of points are only used to ensure there is something on screen to begin with.
         // No need to save these values.
-        this.points = [
-            20, 20,
-            120, 40,
-            220, 80,
-            320, 160,
-            420, 320,
-            520, 400,
-            620, 440,
-            720, 460
+        this.normalEnemyPoints = [
+            194, 52,
+            197, 153,
+            308, 156,
+            313, 212,
+            211, 212,
+            115, 214,
+            118, 295,
+            216, 294,
+            316, 286,
+            322, 347,
+            223, 354,
+            226, 416,
+            131, 431,
+            138, 506,
+            241, 502,
+            339, 498,
+            344, 570,
+            258, 573,
+            256, 627,
+            342, 634,
+            341, 711,
+            245, 716,
+            242, 775
         ];
-        this.curve = new Phaser.Curves.Spline(this.points);
+
+        this.eliteEnemyPoints = [
+            44, 27,
+            259, 45,
+            649, 88,
+            867, 155,
+            693, 321,
+            273, 371,
+            116, 424,
+            194, 546,
+            393, 594,
+            672, 621,
+            790, 763,
+        ]
+
+        this.normalEnemyCurves = []
+        for (let i = this.normalEnemyCount; i > 0; i--) {
+            let newCurve = new Phaser.Curves.Spline(this.normalEnemyPoints);
+            for (let point in newCurve.points) {
+                newCurve.points[point].x += i * 100;
+            }
+            this.normalEnemyCurves.push(newCurve);
+        }
+
+        this.eliteEnemyCurves = []
+        for (let i = this.eliteEnemyCount; i > 0; i--) {
+            let newCurve = new Phaser.Curves.Spline(this.eliteEnemyPoints);
+            for (let point in newCurve.points) {
+                newCurve.points[point].x += i * 100;
+            }
+            this.eliteEnemyCurves.push(newCurve);
+        }
+
+        console.log(this.eliteEnemyCurves);
+
+
 
 
         // Create white puff animation
@@ -77,17 +130,32 @@ class shmup extends Phaser.Scene {
         // my.sprite.playerSprite.setScale(0.25);
 
         // Create Normal Enemy Group
-        my.sprite.enemyGroup = this.add.group({
+        my.sprite.normalEnemyGroup = this.add.group({
             active: true,
             defaultKey: "enemySprite",
-            maxSize: 25,
+            maxSize: this.normalEnemyCount,
             runChildUpdate: true
         }
         )
 
-        for (let i = 10; i > 0; i--) {
-            my.sprite.enemyGroup.add(
-                new Enemy(this, this.curve, 10, 10, my.sprite.enemyGroup.defaultKey, null, 5, i)
+        for (let i = this.normalEnemyCount; i > 0; i--) {
+            my.sprite.normalEnemyGroup.add(
+                new Enemy(this, this.normalEnemyCurves[i - 1], 10, 10, my.sprite.normalEnemyGroup.defaultKey, null, 5, 10)
+            )
+        }
+
+        // Create Elite Enemy Group
+        my.sprite.eliteEnemyGroup = this.add.group({
+            active: true,
+            defaultKey: "enemySprite",
+            maxSize: this.eliteEnemyCount,
+            runChildUpdate: true
+        }
+        )
+
+        for (let i = this.eliteEnemyCount; i > 0; i--) {
+            my.sprite.eliteEnemyGroup.add(
+                new Enemy(this, this.eliteEnemyCurves[i - 1], 10, 10, my.sprite.eliteEnemyGroup.defaultKey, null, 5, 10)
             )
         }
 
@@ -146,7 +214,7 @@ class shmup extends Phaser.Scene {
 
         // Check for collision with the enemySprite
         for (let bullet of my.sprite.bulletGroup.getChildren()) {
-            for (let enemy of my.sprite.enemyGroup.getChildren()) {
+            for (let enemy of my.sprite.normalEnemyGroup.getChildren()) {
                 if (this.collides(enemy, bullet)) {
                     enemy.explode();
                     // clear out bullet -- put y offscreen, will get reaped next update

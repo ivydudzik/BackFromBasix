@@ -12,11 +12,9 @@ class Enemy extends Phaser.GameObjects.PathFollower {
 
         scene.add.existing(this);
 
-        console.log("creating")
-
-        if (curve.points[0]) {
-            this.x = curve.points[0].x;
-            this.y = curve.points[0].y;
+        if (this.curve.points[0]) {
+            this.x = this.curve.points[0].x;
+            this.y = this.curve.points[0].y;
         }
         //   - call startFollow on enemySprite with the following configuration
         this.startFollow({
