@@ -4,13 +4,15 @@ class Enemy extends Phaser.GameObjects.PathFollower {
     // spriteKey - key for the sprite image asset
     // leftKey - key for moving left
     // rightKey - key for moving right
-    constructor(scene, curve, x, y, texture, frame, enemySpeed) {
+    constructor(scene, curve, x, y, texture, frame, enemySpeed, enemyType, puffName) {
         super(scene, curve, x, y, texture, frame);
 
         this.didPause = false;
 
         this.enemySpeed = enemySpeed;
         this.curve = curve;
+        this.enemyType = enemyType;
+        this.puffName = puffName;
 
         scene.add.existing(this);
 
@@ -31,13 +33,15 @@ class Enemy extends Phaser.GameObjects.PathFollower {
             rotationOffset: -90
         })
 
+        // this.selfDestructTimer = this.scene.time.delayedCall(2500, this.explode, null, this);  // delay in ms
+
         return this;
     }
 
     explode() {
         this.isExploding = true;
         this.puff = this.scene.add.sprite(this.x, this.y, "explode_anim/explode00");
-        this.puff.play("puff");
+        this.puff.play(this.puffName);
 
         this.stopFollow();
         this.visible = false;
@@ -69,22 +73,26 @@ class Enemy extends Phaser.GameObjects.PathFollower {
     }
 
     update() {
+
         // console.log("pathVector:", this.pathVector);
         // console.log("point 4:", this.curve.points[4]);
-        if (this.pathVector.distance(this.curve.points[4]) < 5 && this.didPause == false) {
-            this.didPause = true;
-            this.pauseTime = 120
-            this.pauseFollow();
+        if (this.enemyType == "normal") {
+            if (this.pathVector.distance(this.curve.points[4]) < 5 && this.didPause == false) {
+                this.didPause = true;
+                this.pauseTime = 120
+                this.pauseFollow();
+            }
+
+            if (this.pauseTime > 0) {
+                this.pauseTime -= 1;
+            }
+
+            if (this.pauseTime == 0) {
+                this.resumeFollow();
+                this.pauseTime = -1;
+            }
         }
 
-        if (this.pauseTime > 0) {
-            this.pauseTime -= 1;
-        }
-
-        if (this.pauseTime == 0) {
-            this.resumeFollow();
-            this.pauseTime = -1;
-        }
 
         // // Moving left
         // if (this.left.isDown) {

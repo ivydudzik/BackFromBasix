@@ -1,11 +1,11 @@
-class shmup extends Phaser.Scene {
+class shmup_1 extends Phaser.Scene {
     // Class variable definitions -- these are all "undefined" to start
     graphics;
     curve;
     path;
 
     constructor() {
-        super("shmupScene");
+        super("shmup_1Scene");
         this.my = { sprite: {} };  // Create an object to hold sprite bindings
 
         // Set movement speeds (in pixels/tick)
@@ -30,75 +30,39 @@ class shmup extends Phaser.Scene {
 
         let my = this.my;
 
-        this.normalEnemyCount = 9;
+        this.normalEnemyCount = 27;
         this.eliteEnemyCount = 2;
 
         this.enemies = this.normalEnemyCount + this.eliteEnemyCount;
 
-        // Create a curve, for use with the path
-        // Initial set of points are only used to ensure there is something on screen to begin with.
-        // No need to save these values.
-        this.normalEnemyPoints = [
-            194, -50,
-            194, 20,
-            194, 50,
-            194, 80,
-            194, 110,
-            197, 153,
-            308, 156,
-            313, 212,
-            211, 212,
-            115, 214,
-            118, 295,
-            216, 294,
-            316, 286,
-            322, 347,
-            223, 354,
-            226, 416,
-            131, 431,
-            138, 506,
-            241, 502,
-            339, 498,
-            344, 570,
-            258, 573,
-            256, 627,
-            342, 634,
-            341, 711,
-            245, 716,
-            242, 775
-        ];
-
-        this.eliteEnemyPoints = [
-            44, 27,
-            259, 45,
-            649, 88,
-            867, 155,
-            693, 321,
-            273, 371,
-            116, 424,
-            194, 546,
-            393, 594,
-            672, 621,
-            790, 763,
-        ]
-
-        this.normalEnemyCurves = []
-        for (let i = this.normalEnemyCount; i > 0; i--) {
-            let newCurve = new Phaser.Curves.Spline(this.normalEnemyPoints);
-            for (let point in newCurve.points) {
-                newCurve.points[point].x += i * 100 - 200;
-            }
-            this.normalEnemyCurves.push(newCurve);
+        // Create Normal Enemy Group
+        my.sprite.normalEnemyGroup = this.add.group({
+            active: true,
+            defaultKey: "enemySprite",
+            maxSize: this.normalEnemyCount,
+            runChildUpdate: true
         }
+        )
 
-        this.eliteEnemyCurves = []
-        for (let i = this.eliteEnemyCount; i > 0; i--) {
-            let newCurve = new Phaser.Curves.Spline(this.eliteEnemyPoints);
-            for (let point in newCurve.points) {
-                newCurve.points[point].x += i * 100;
-            }
-            this.eliteEnemyCurves.push(newCurve);
+        // Create Elite Enemy Group
+        my.sprite.eliteEnemyGroup = this.add.group({
+            active: true,
+            defaultKey: "enemySpriteElite",
+            maxSize: this.eliteEnemyCount,
+            runChildUpdate: true
         }
+        )
+
+        // SPAWN ENEMY WAVES
+        this.spawnNormalEnemies(this.normalEnemyCount / 3);
+        this.time.delayedCall(2500, this.spawnEliteEnemies, [this.eliteEnemyCount / 2], this);  // delay in ms
+        this.time.delayedCall(5000, this.spawnEliteEnemies, [this.eliteEnemyCount / 2], this);  // delay in ms
+        this.time.delayedCall(2500, this.spawnNormalEnemies, [this.normalEnemyCount / 3], this);  // delay in ms
+        this.time.delayedCall(5000, this.spawnNormalEnemies, [this.normalEnemyCount / 3], this);  // delay in ms
+        // this.spawnEliteEnemies();
+
+
+
 
         // Create key objects
         this.left = this.input.keyboard.addKey("A");
@@ -120,36 +84,6 @@ class shmup extends Phaser.Scene {
         my.sprite.playerSprite.rotation = Math.PI / 4;
         // my.sprite.playerSprite.setScale(0.25);
 
-        // Create Normal Enemy Group
-        my.sprite.normalEnemyGroup = this.add.group({
-            active: true,
-            defaultKey: "enemySprite",
-            maxSize: this.normalEnemyCount,
-            runChildUpdate: true
-        }
-        )
-
-        for (let i = this.normalEnemyCount; i > 0; i--) {
-            my.sprite.normalEnemyGroup.add(
-                new Enemy(this, this.normalEnemyCurves[i - 1], 10, 10, my.sprite.normalEnemyGroup.defaultKey, null, this.enemySpeed)
-            )
-        }
-
-        // Create Elite Enemy Group
-        my.sprite.eliteEnemyGroup = this.add.group({
-            active: true,
-            defaultKey: "enemySpriteElite",
-            maxSize: this.eliteEnemyCount,
-            runChildUpdate: true
-        }
-        )
-
-        for (let i = this.eliteEnemyCount; i > 0; i--) {
-            my.sprite.eliteEnemyGroup.add(
-                new Enemy(this, this.eliteEnemyCurves[i - 1], 10, 10, my.sprite.eliteEnemyGroup.defaultKey, null, this.enemySpeed)
-            )
-        }
-        my.sprite.eliteEnemyGroup.propertyValueSet("scale", 0.75);
 
         // Create enemySprite as a follower type of sprite
         // Call startFollow() on enemySprite to have it follow the curve
@@ -188,8 +122,104 @@ class shmup extends Phaser.Scene {
 
     }
 
+    spawnNormalEnemies(spawnCount) {
+        let my = this.my;
+        // Create a curve, for use with the path
+        // Initial set of points are only used to ensure there is something on screen to begin with.
+        // No need to save these values.
+        this.normalEnemyPoints = [
+            194, -50,
+            194, 20,
+            194, 50,
+            194, 80,
+            194, 110,
+            197, 153,
+            308, 156,
+            313, 212,
+            211, 212,
+            115, 214,
+            118, 295,
+            216, 294,
+            316, 286,
+            322, 347,
+            223, 354,
+            226, 416,
+            131, 431,
+            138, 506,
+            241, 502,
+            339, 498,
+            344, 570,
+            258, 573,
+            256, 627,
+            342, 634,
+            341, 711,
+            245, 716,
+            242, 775
+        ];
+
+
+
+        this.normalEnemyCurves = []
+        for (let i = spawnCount; i > 0; i--) {
+            let newCurve = new Phaser.Curves.Spline(this.normalEnemyPoints);
+            for (let point in newCurve.points) {
+                newCurve.points[point].x += i * 100 - 200;
+            }
+            this.normalEnemyCurves.push(newCurve);
+        }
+
+        for (let i = spawnCount; i > 0; i--) {
+            my.sprite.normalEnemyGroup.add(
+                new Enemy(this, this.normalEnemyCurves[i - 1], 10, 10, my.sprite.normalEnemyGroup.defaultKey, null, this.enemySpeed, "normal", "puff")
+            )
+        }
+    }
+
+    spawnEliteEnemies(spawnCount) {
+        let my = this.my;
+
+        this.eliteEnemyPoints = [
+            44, 27,
+            259, 45,
+            649, 88,
+            867, 155,
+            693, 321,
+            273, 371,
+            116, 424,
+            194, 546,
+            393, 594,
+            672, 621,
+            790, 763,
+        ]
+
+        this.eliteEnemyCurves = []
+        for (let i = spawnCount; i > 0; i--) {
+            let newCurve = new Phaser.Curves.Spline(this.eliteEnemyPoints);
+            for (let point in newCurve.points) {
+                newCurve.points[point].x += i * 100;
+            }
+            this.eliteEnemyCurves.push(newCurve);
+        }
+
+        for (let i = spawnCount; i > 0; i--) {
+            my.sprite.eliteEnemyGroup.add(
+                new Enemy(this, this.eliteEnemyCurves[i - 1], 10, 10, my.sprite.eliteEnemyGroup.defaultKey, null, this.enemySpeed, "elite", "puff")
+            )
+        }
+        my.sprite.eliteEnemyGroup.propertyValueSet("scale", 0.75);
+    }
+
+
+
+    win() {
+        console.log("you win!");
+        this.scene.start("shmup_2Scene");
+    }
+
     lose() {
-        console.log('you lose!')
+
+        console.log("you lose!");
+        this.scene.start();
     }
 
     update() {
@@ -251,6 +281,7 @@ class shmup extends Phaser.Scene {
                     enemy.explode();
                     my.sprite.playerSprite.hit(); // kill player / end game if no shield
                     this.hitCooldownCounter = this.hitCooldown;
+                    break;
                 }
             }
 
@@ -260,6 +291,7 @@ class shmup extends Phaser.Scene {
                     enemy.explode();
                     my.sprite.playerSprite.hit(); // kill player / end game if no shield
                     this.hitCooldownCounter = this.hitCooldown;
+                    break;
                 }
             }
         }
@@ -270,13 +302,11 @@ class shmup extends Phaser.Scene {
         my.sprite.playerSprite.update();
 
         if (this.enemies == 0) {
-            // this.scene.start("shmupScene");
+            // this.scene.start("shmup_1Scene");
             if (this.score >= 150) {
-                console.log("you win!");
-                this.scene.start();
+                this.win();
             } else {
-                console.log("you lose!");
-                this.scene.start();
+                this.lose();
             }
 
         }

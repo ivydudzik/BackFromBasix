@@ -21,7 +21,7 @@ let config = {
     },
     width: 1000,
     height: 800,
-    scene: [loading, shmup],
+    scene: [loading_1, shmup_1, shmup_2],
     fps: { forceSetTimeOut: true, target: 60 },
     backgroundColor: '#000000'
 }
