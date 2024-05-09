@@ -7,6 +7,8 @@ class Enemy extends Phaser.GameObjects.PathFollower {
     constructor(scene, curve, x, y, texture, frame, enemySpeed) {
         super(scene, curve, x, y, texture, frame);
 
+        this.didPause = false;
+
         this.enemySpeed = enemySpeed;
         this.curve = curve;
 
@@ -67,6 +69,23 @@ class Enemy extends Phaser.GameObjects.PathFollower {
     }
 
     update() {
+        // console.log("pathVector:", this.pathVector);
+        // console.log("point 4:", this.curve.points[4]);
+        if (this.pathVector.distance(this.curve.points[4]) < 5 && this.didPause == false) {
+            this.didPause = true;
+            this.pauseTime = 120
+            this.pauseFollow();
+        }
+
+        if (this.pauseTime > 0) {
+            this.pauseTime -= 1;
+        }
+
+        if (this.pauseTime == 0) {
+            this.resumeFollow();
+            this.pauseTime = -1;
+        }
+
         // // Moving left
         // if (this.left.isDown) {
         //     // Check to make sure the sprite can actually move left
