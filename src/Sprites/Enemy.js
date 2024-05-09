@@ -24,7 +24,7 @@ class Enemy extends Phaser.GameObjects.PathFollower {
             duration: 20000 / this.enemySpeed,
             ease: 'Sine.easeInOut',
             repeat: -1,
-            yoyo: true,
+            yoyo: false,
             rotateToPath: true,
             rotationOffset: -90
         })
@@ -33,7 +33,8 @@ class Enemy extends Phaser.GameObjects.PathFollower {
     }
 
     explode() {
-        this.puff = this.scene.add.sprite(this.x, this.y, "whitePuff03").setScale(0.25);
+        this.isExploding = true;
+        this.puff = this.scene.add.sprite(this.x, this.y, "explode_anim/explode00");
         this.puff.play("puff");
 
         this.stopFollow();
@@ -45,6 +46,7 @@ class Enemy extends Phaser.GameObjects.PathFollower {
 
             // No Respawn:
             this.active = false;
+            this.scene.enemies -= 1;
 
             // Respawn:
             // this.visible = true;
@@ -60,6 +62,7 @@ class Enemy extends Phaser.GameObjects.PathFollower {
             //     rotationOffset: -90
             // })
         }, this);
+
 
     }
 

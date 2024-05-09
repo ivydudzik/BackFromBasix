@@ -21,9 +21,9 @@ let config = {
     },
     width: 1000,
     height: 800,
-    scene: [shmup],
+    scene: [loading, shmup],
     fps: { forceSetTimeOut: true, target: 60 },
-    backgroundColor: '#0000'
+    backgroundColor: '#000000'
 }
 
 const game = new Phaser.Game(config);
