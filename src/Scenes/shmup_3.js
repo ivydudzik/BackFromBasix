@@ -11,10 +11,10 @@ class shmup_3 extends Phaser.Scene {
         // Set movement speeds (in pixels/tick)
         this.playerSpeed = 10;
         this.bulletSpeed = 10;
-        this.enemySpeed = 2;
+        this.enemySpeed = 3;
 
 
-        this.bulletCooldown = 5;        // Number of update() calls to wait before making a new bullet
+        this.bulletCooldown = 15;        // Number of update() calls to wait before making a new bullet
         this.bulletCooldownCounter = 0;
 
 
@@ -71,7 +71,7 @@ class shmup_3 extends Phaser.Scene {
 
         // make a shield sprite
         my.sprite.shield = this.add.sprite(game.config.width / 2, game.config.height - 35, "shield_3");
-        // my.sprite.shield.setScale(0.25);
+        my.sprite.shield.setScale(0.5);
 
         // make a score text
         my.sprite.score = this.add.text(10, 0, this.score, { fontSize: '36px', fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
@@ -81,7 +81,7 @@ class shmup_3 extends Phaser.Scene {
         my.sprite.playerSprite = new Player(this, game.config.width / 2, game.config.height - 40, "playerSprite_3", null,
             this.left, this.right, 5, my.sprite.shield);
         // my.sprite.playerSprite.rotation = Math.PI / 4;
-        // my.sprite.playerSprite.setScale(0.25);
+        my.sprite.playerSprite.setScale(0.5);
 
 
         // Create enemySprite as a follower type of sprite
@@ -117,7 +117,7 @@ class shmup_3 extends Phaser.Scene {
 
 
         // Add Descriptive Text
-        document.getElementById('description').innerHTML = '<h3>A: left // D: right // shoot: fire/emit // S: Next Scene</h3>'
+        document.getElementById('description').innerHTML = '<h3>A: left // D: right // W: shoot</h3>'
 
     }
 
@@ -153,7 +153,8 @@ class shmup_3 extends Phaser.Scene {
             342, 634,
             341, 711,
             245, 716,
-            242, 775
+            242, 775,
+            242, 825,
         ];
 
 
@@ -172,12 +173,14 @@ class shmup_3 extends Phaser.Scene {
                 new Enemy(this, this.normalEnemyCurves[i - 1], 10, 10, my.sprite.normalEnemyGroup.defaultKey, null, this.enemySpeed, "normal", "puff_3")
             )
         }
+        my.sprite.normalEnemyGroup.propertyValueSet("scale", 0.5);
     }
 
     spawnEliteEnemies(spawnCount) {
         let my = this.my;
 
         this.eliteEnemyPoints = [
+            20, -50,
             44, 27,
             259, 45,
             649, 88,
@@ -189,6 +192,7 @@ class shmup_3 extends Phaser.Scene {
             393, 594,
             672, 621,
             790, 763,
+            800, 825,
         ]
 
         this.eliteEnemyCurves = []
@@ -205,18 +209,24 @@ class shmup_3 extends Phaser.Scene {
                 new Enemy(this, this.eliteEnemyCurves[i - 1], 10, 10, my.sprite.eliteEnemyGroup.defaultKey, null, this.enemySpeed, "elite", "puff_3")
             )
         }
-        my.sprite.eliteEnemyGroup.propertyValueSet("scale", 0.75);
+        my.sprite.eliteEnemyGroup.propertyValueSet("scale", 0.375);
     }
 
     win() {
         console.log("you win!");
+        this.winSound = this.sound.add('shieldUp');
+        this.winSound.setVolume(0.1);
+        this.winSound.play();
         this.scene.start("winScene");
     }
 
     lose() {
 
         console.log("you lose!");
-        this.scene.start();
+        this.loseSound = this.sound.add('shieldDown');
+        this.loseSound.setVolume(0.1);
+        this.loseSound.play();
+        this.scene.start("loseScene");
     }
 
     update() {
@@ -233,6 +243,9 @@ class shmup_3 extends Phaser.Scene {
                 let bullet = my.sprite.bulletGroup.getFirstDead();
                 // bullet will be null if there are no inactive (available) bullets
                 if (bullet != null) {
+                    this.shootSound = this.sound.add('laser2');
+                    this.shootSound.setVolume(0.05);
+                    this.shootSound.play();
                     this.bulletCooldownCounter = this.bulletCooldown;
                     bullet.makeActive();
                     bullet.x = my.sprite.playerSprite.x;
@@ -299,13 +312,7 @@ class shmup_3 extends Phaser.Scene {
         my.sprite.playerSprite.update();
 
         if (this.enemies == 0) {
-            // this.scene.start("shmup_3Scene");
-            if (this.score >= 150) {
-                this.win();
-            } else {
-                this.lose();
-            }
-
+            this.win();
         }
 
         my.sprite.score.setText(this.score);
@@ -313,6 +320,7 @@ class shmup_3 extends Phaser.Scene {
 
     // A center-radius AABB collision check
     collides(a, b) {
+        if (a.y > 780 || b.y > 780) { return false; } // check if enemy is just below player and add grace
         if (!a.active || !b.active) { return false; }
         if (Math.abs(a.x - b.x) > (a.displayWidth / 2 + b.displayWidth / 2)) return false;
         if (Math.abs(a.y - b.y) > (a.displayHeight / 2 + b.displayHeight / 2)) return false;

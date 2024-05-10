@@ -45,6 +45,9 @@ class Enemy extends Phaser.GameObjects.PathFollower {
 
         this.stopFollow();
         this.visible = false;
+        this.deathSound = this.scene.sound.add('boom');
+        this.deathSound.setVolume(0.025);
+        this.deathSound.play();
         this.puff.on(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
 
             this.x = this.curve.points[0].x;
@@ -79,7 +82,7 @@ class Enemy extends Phaser.GameObjects.PathFollower {
         if (this.enemyType == "normal") {
             if (this.pathVector.distance(this.curve.points[4]) < 5 && this.didPause == false) {
                 this.didPause = true;
-                this.pauseTime = 120
+                this.pauseTime = 60
                 this.pauseFollow();
             }
 

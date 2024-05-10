@@ -14,7 +14,7 @@ class shmup_1 extends Phaser.Scene {
         this.enemySpeed = 2;
 
 
-        this.bulletCooldown = 5;        // Number of update() calls to wait before making a new bullet
+        this.bulletCooldown = 15;        // Number of update() calls to wait before making a new bullet
         this.bulletCooldownCounter = 0;
 
 
@@ -30,7 +30,7 @@ class shmup_1 extends Phaser.Scene {
 
         let my = this.my;
 
-        this.normalEnemyCount = 27;
+        this.normalEnemyCount = 9;
         this.eliteEnemyCount = 2;
 
         this.enemies = this.normalEnemyCount + this.eliteEnemyCount;
@@ -54,11 +54,9 @@ class shmup_1 extends Phaser.Scene {
         )
 
         // SPAWN ENEMY WAVES
-        this.spawnNormalEnemies(this.normalEnemyCount / 3);
+        this.spawnNormalEnemies(this.normalEnemyCount);
         this.time.delayedCall(2500, this.spawnEliteEnemies, [this.eliteEnemyCount / 2], this);  // delay in ms
         this.time.delayedCall(5000, this.spawnEliteEnemies, [this.eliteEnemyCount / 2], this);  // delay in ms
-        this.time.delayedCall(2500, this.spawnNormalEnemies, [this.normalEnemyCount / 3], this);  // delay in ms
-        this.time.delayedCall(5000, this.spawnNormalEnemies, [this.normalEnemyCount / 3], this);  // delay in ms
         // this.spawnEliteEnemies();
 
 
@@ -117,7 +115,7 @@ class shmup_1 extends Phaser.Scene {
 
 
         // Add Descriptive Text
-        document.getElementById('description').innerHTML = '<h3>A: left // D: right // shoot: fire/emit // S: Next Scene</h3>'
+        document.getElementById('description').innerHTML = '<h3>A: left // D: right // W: shoot</h3>'
 
     }
 
@@ -153,7 +151,8 @@ class shmup_1 extends Phaser.Scene {
             342, 634,
             341, 711,
             245, 716,
-            242, 775
+            242, 775,
+            242, 825,
         ];
 
 
@@ -178,6 +177,7 @@ class shmup_1 extends Phaser.Scene {
         let my = this.my;
 
         this.eliteEnemyPoints = [
+            20, -50,
             44, 27,
             259, 45,
             649, 88,
@@ -189,6 +189,7 @@ class shmup_1 extends Phaser.Scene {
             393, 594,
             672, 621,
             790, 763,
+            800, 825,
         ]
 
         this.eliteEnemyCurves = []
@@ -212,13 +213,19 @@ class shmup_1 extends Phaser.Scene {
 
     win() {
         console.log("you win!");
+        this.winSound = this.sound.add('shieldUp');
+        this.winSound.setVolume(0.1);
+        this.winSound.play();
         this.scene.start("shmup_2Scene");
     }
 
     lose() {
 
         console.log("you lose!");
-        this.scene.start();
+        this.loseSound = this.sound.add('shieldDown');
+        this.loseSound.setVolume(0.1);
+        this.loseSound.play();
+        this.scene.start("loseScene");
     }
 
     update() {
@@ -235,6 +242,9 @@ class shmup_1 extends Phaser.Scene {
                 let bullet = my.sprite.bulletGroup.getFirstDead();
                 // bullet will be null if there are no inactive (available) bullets
                 if (bullet != null) {
+                    this.shootSound = this.sound.add('laser2');
+                    this.shootSound.setVolume(0.05);
+                    this.shootSound.play();
                     this.bulletCooldownCounter = this.bulletCooldown;
                     bullet.makeActive();
                     bullet.x = my.sprite.playerSprite.x;
@@ -301,13 +311,7 @@ class shmup_1 extends Phaser.Scene {
         my.sprite.playerSprite.update();
 
         if (this.enemies == 0) {
-            // this.scene.start("shmup_1Scene");
-            if (this.score >= 150) {
-                this.win();
-            } else {
-                this.lose();
-            }
-
+            this.win();
         }
 
         my.sprite.score.setText(this.score);
@@ -315,6 +319,7 @@ class shmup_1 extends Phaser.Scene {
 
     // A center-radius AABB collision check
     collides(a, b) {
+        if (a.y > 780 || b.y > 780) { return false; } // check if enemy is just below player and add grace
         if (!a.active || !b.active) { return false; }
         if (Math.abs(a.x - b.x) > (a.displayWidth / 2 + b.displayWidth / 2)) return false;
         if (Math.abs(a.y - b.y) > (a.displayHeight / 2 + b.displayHeight / 2)) return false;

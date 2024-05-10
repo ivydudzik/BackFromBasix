@@ -5,6 +5,17 @@ class loading_1 extends Phaser.Scene {
 
     // Use preload to load art and sound assets before the scene starts running.
     preload() {
+        this.load.setPath("./assets/audio");
+        this.load.audio('theme', '251461__joshuaempyre__arcade-music-loop.wav');
+        // Arcade Music Loop.wav by joshuaempyre -- https://freesound.org/s/251461/ -- License: Attribution 4.0
+        this.load.audio('shieldUp', 'sfx_shieldUp.ogg');
+        this.load.audio('shieldDown', 'sfx_shieldDown.ogg');
+        this.load.audio('laser1', 'sfx_laser1.ogg');
+        this.load.audio('laser2', 'sfx_laser2.ogg');
+        this.load.audio('zap', 'sfx_zap.ogg');
+        this.load.audio('boom', 'explosionCrunch_000.ogg');
+
+
         this.load.setPath("./assets/level_1");                        // Set load path
         this.load.image('playerSprite', 'pointer_scifi_b.png');
         this.load.image('bulletSprite', 'line_vertical.png');
@@ -39,10 +50,9 @@ class loading_1 extends Phaser.Scene {
         this.load.image("shield_3", "shield2.png");
 
         this.load.image("explode00_3", "explode_anim/meteorGrey_tiny1.png");
-        this.load.image("explode01_3", "explode_anim/meteorGrey_small1.png");
-        this.load.image("explode02_3", "explode_anim/meteorGrey_big4.png");
-        this.load.image("explode03_3", "explode_anim/meteorGrey_med2.png");
-        this.load.image("explode04_3", "explode_anim/meteorGrey_tiny1.png");
+        this.load.image("explode01_3", "explode_anim/meteorGrey_med2.png");
+        this.load.image("explode02_3", "explode_anim/meteorGrey_small1.png");
+        this.load.image("explode03_3", "explode_anim/meteorGrey_tiny1.png");
 
 
     }
@@ -86,13 +96,16 @@ class loading_1 extends Phaser.Scene {
                 { key: "explode01_3" },
                 { key: "explode02_3" },
                 { key: "explode03_3" },
-                { key: "explode04_3" },
             ],
             frameRate: 12,
             repeat: 0,
             hideOnComplete: true
         });
 
+        const music = this.sound.add('theme');
+        music.setVolume(0.05);
+        music.setLoop(true);
+        music.play();
 
     }
 
