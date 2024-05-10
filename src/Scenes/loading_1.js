@@ -25,11 +25,26 @@ class loading_1 extends Phaser.Scene {
         this.load.image("enemySpriteElite_2", "enemy_A.png");
         this.load.image("shield_2", "ship_C.png");
 
-        this.load.image("explode00_2", "explode_anim/star_tiny.png");
-        this.load.image("explode01_2", "explode_anim/star_small.png");
+        this.load.image("explode00_2", "explode_anim/star_small.png");
+        this.load.image("explode01_2", "explode_anim/star_tiny.png");
         this.load.image("explode02_2", "explode_anim/star_large.png");
         this.load.image("explode03_2", "explode_anim/star_medium.png");
         this.load.image("explode04_2", "explode_anim/star_small.png");
+
+        this.load.setPath("./assets/level_3");                        // Set load path
+        this.load.image('playerSprite_3', 'playerShip2_blue.png');
+        this.load.image('bulletSprite_3', 'laserBlue01.png');
+        this.load.image("enemySprite_3", "enemyRed1.png");
+        this.load.image("enemySpriteElite_3", "enemyBlue5.png");
+        this.load.image("shield_3", "shield2.png");
+
+        this.load.image("explode00_3", "explode_anim/meteorGrey_tiny1.png");
+        this.load.image("explode01_3", "explode_anim/meteorGrey_small1.png");
+        this.load.image("explode02_3", "explode_anim/meteorGrey_big4.png");
+        this.load.image("explode03_3", "explode_anim/meteorGrey_med2.png");
+        this.load.image("explode04_3", "explode_anim/meteorGrey_tiny1.png");
+
+
     }
 
     create() {
@@ -62,11 +77,28 @@ class loading_1 extends Phaser.Scene {
             repeat: 0,
             hideOnComplete: true
         });
+
+        // Create white puff animation
+        this.anims.create({
+            key: "puff_3",
+            frames: [
+                { key: "explode00_3" },
+                { key: "explode01_3" },
+                { key: "explode02_3" },
+                { key: "explode03_3" },
+                { key: "explode04_3" },
+            ],
+            frameRate: 12,
+            repeat: 0,
+            hideOnComplete: true
+        });
+
+
     }
 
     update() {
 
-        this.scene.start("shmup_1Scene");
+        this.scene.start("menuScene");
 
     }
 }

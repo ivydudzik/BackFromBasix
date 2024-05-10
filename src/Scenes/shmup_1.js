@@ -75,8 +75,7 @@ class shmup_1 extends Phaser.Scene {
         // my.sprite.shield.setScale(0.25);
 
         // make a score text
-        my.sprite.score = this.add.text(5, -5, this.score, { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
-        my.sprite.score.setScale(2);
+        my.sprite.score = this.add.text(10, 0, this.score, { fontSize: '36px', fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif' });
 
         // Create the main body sprite
         my.sprite.playerSprite = new Player(this, game.config.width / 2, game.config.height - 40, "playerSprite", null,

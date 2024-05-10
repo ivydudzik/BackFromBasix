@@ -45,7 +45,7 @@ class Player extends Phaser.GameObjects.Sprite {
                 this.x += this.playerSpeed;
             }
         }
-        this.shield.setPosition(this.x, this.y - 25);
+        this.shield.setPosition(this.x, this.y - 35);
 
     }
 

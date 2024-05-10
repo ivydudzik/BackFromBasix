@@ -1,11 +1,11 @@
-class shmup_2 extends Phaser.Scene {
+class shmup_3 extends Phaser.Scene {
     // Class variable definitions -- these are all "undefined" to start
     graphics;
     curve;
     path;
 
     constructor() {
-        super("shmup_2Scene");
+        super("shmup_3Scene");
         this.my = { sprite: {} };  // Create an object to hold sprite bindings
 
         // Set movement speeds (in pixels/tick)
@@ -38,7 +38,7 @@ class shmup_2 extends Phaser.Scene {
         // Create Normal Enemy Group
         my.sprite.normalEnemyGroup = this.add.group({
             active: true,
-            defaultKey: "enemySprite_2",
+            defaultKey: "enemySprite_3",
             maxSize: this.normalEnemyCount,
             runChildUpdate: true
         }
@@ -47,7 +47,7 @@ class shmup_2 extends Phaser.Scene {
         // Create Elite Enemy Group
         my.sprite.eliteEnemyGroup = this.add.group({
             active: true,
-            defaultKey: "enemySpriteElite_2",
+            defaultKey: "enemySpriteElite_3",
             maxSize: this.eliteEnemyCount,
             runChildUpdate: true
         }
@@ -70,7 +70,7 @@ class shmup_2 extends Phaser.Scene {
         this.shoot = this.input.keyboard.addKey("W");
 
         // make a shield sprite
-        my.sprite.shield = this.add.sprite(game.config.width / 2, game.config.height - 35, "shield_2");
+        my.sprite.shield = this.add.sprite(game.config.width / 2, game.config.height - 35, "shield_3");
         // my.sprite.shield.setScale(0.25);
 
         // make a score text
@@ -78,7 +78,7 @@ class shmup_2 extends Phaser.Scene {
 
 
         // Create the main body sprite
-        my.sprite.playerSprite = new Player(this, game.config.width / 2, game.config.height - 40, "playerSprite_2", null,
+        my.sprite.playerSprite = new Player(this, game.config.width / 2, game.config.height - 40, "playerSprite_3", null,
             this.left, this.right, 5, my.sprite.shield);
         // my.sprite.playerSprite.rotation = Math.PI / 4;
         // my.sprite.playerSprite.setScale(0.25);
@@ -96,7 +96,7 @@ class shmup_2 extends Phaser.Scene {
         // https://rexrainbow.github.io/phaser3-rex-notes/docs/site/group/
         my.sprite.bulletGroup = this.add.group({
             active: true,
-            defaultKey: "bulletSprite_2",
+            defaultKey: "bulletSprite_3",
             maxSize: 25,
             runChildUpdate: true
         }
@@ -169,7 +169,7 @@ class shmup_2 extends Phaser.Scene {
 
         for (let i = spawnCount; i > 0; i--) {
             my.sprite.normalEnemyGroup.add(
-                new Enemy(this, this.normalEnemyCurves[i - 1], 10, 10, my.sprite.normalEnemyGroup.defaultKey, null, this.enemySpeed, "normal", "puff_2")
+                new Enemy(this, this.normalEnemyCurves[i - 1], 10, 10, my.sprite.normalEnemyGroup.defaultKey, null, this.enemySpeed, "normal", "puff_3")
             )
         }
     }
@@ -202,7 +202,7 @@ class shmup_2 extends Phaser.Scene {
 
         for (let i = spawnCount; i > 0; i--) {
             my.sprite.eliteEnemyGroup.add(
-                new Enemy(this, this.eliteEnemyCurves[i - 1], 10, 10, my.sprite.eliteEnemyGroup.defaultKey, null, this.enemySpeed, "elite", "puff_2")
+                new Enemy(this, this.eliteEnemyCurves[i - 1], 10, 10, my.sprite.eliteEnemyGroup.defaultKey, null, this.enemySpeed, "elite", "puff_3")
             )
         }
         my.sprite.eliteEnemyGroup.propertyValueSet("scale", 0.75);
@@ -210,7 +210,7 @@ class shmup_2 extends Phaser.Scene {
 
     win() {
         console.log("you win!");
-        this.scene.start("shmup_3Scene");
+        this.scene.start("winScene");
     }
 
     lose() {
@@ -299,7 +299,7 @@ class shmup_2 extends Phaser.Scene {
         my.sprite.playerSprite.update();
 
         if (this.enemies == 0) {
-            // this.scene.start("shmup_2Scene");
+            // this.scene.start("shmup_3Scene");
             if (this.score >= 150) {
                 this.win();
             } else {
