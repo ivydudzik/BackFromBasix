@@ -1,3 +1,3 @@
-**1D Movement**
+**Back From Basix**
 
-Class assignment for CMPM 120 where we explore 1D movement
+Advance from cursors to spaceships in this fun and quick shoot-em-up!
